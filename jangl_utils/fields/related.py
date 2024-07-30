@@ -5,10 +5,18 @@ from django.utils import six
 from django.utils.functional import cached_property
 
 
+def chunked(data, group_size):
+    for i in range(0, len(data), group_size):
+        yield data[i:i + group_size]
+
+
 if django.VERSION < (2, 0):
     from django.db.models.fields.related import ForeignRelatedObjectsDescriptor
 
     class DeleteAndCreateDescriptor(ForeignRelatedObjectsDescriptor):
+
+        group_size = 1000
+
         def __set__(self, instance, value):
             if value is None:
                 return
@@ -23,7 +31,8 @@ if django.VERSION < (2, 0):
             with transaction.atomic(using=db, savepoint=False):
                 manager.all().delete()
                 if getattr(self.related.field, 'bulk_create'):
-                    manager.bulk_create([create_obj(**obj) for obj in value])
+                    for group in chunked(value, self.group_size):
+                        manager.bulk_create([create_obj(**obj) for obj in group])
                 else:
                     [manager.create(**obj) for obj in value]
 
@@ -57,6 +66,9 @@ else:
     from django.db.models.fields.related_descriptors import ReverseManyToOneDescriptor
 
     class DeleteAndCreateDescriptor(ReverseManyToOneDescriptor):
+
+        group_size = 1000
+
         def __get__(self, instance, cls=None):
             return super().__get__(instance, cls)
 
@@ -74,7 +86,8 @@ else:
             with transaction.atomic(using=db, savepoint=False):
                 manager.all().delete()
                 if getattr(self.field, 'bulk_create'):
-                    manager.bulk_create([create_obj(**obj) for obj in value])
+                    for group in chunked(value, self.group_size):
+                        manager.bulk_create([create_obj(**obj) for obj in group])
                 else:
                     [manager.create(**obj) for obj in value]
 
