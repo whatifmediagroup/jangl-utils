@@ -1,4 +1,4 @@
--i https://rpm:5U9GQ18muJgJ@pypi.jangl.com/pypi/
+--extra-index-url https://rpm:5U9GQ18muJgJ@pypi.jangl.com/pypi/
 -e .
 
 avro
