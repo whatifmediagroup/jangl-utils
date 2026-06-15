@@ -38,3 +38,6 @@ BACKEND_API_CACHE_VERSION = getattr(django_settings, 'BACKEND_API_CACHE_VERSION'
                                     config('BACKEND_API_CACHE_VERSION', default='1'))
 BACKEND_API_VERBOSE_LOG_LEVEL = getattr(django_settings, 'BACKEND_API_VERBOSE_LOG_LEVEL',
                                         config('BACKEND_API_VERBOSE_LOG_LEVEL', default='DEBUG'))
+
+AUTH_MIDDLEWARE_USE_CACHE = getattr(django_settings, 'AUTH_MIDDLEWARE_USE_CACHE',
+                                    config('AUTH_MIDDLEWARE_USE_CACHE', default=True, cast=casts.Boolean()))
